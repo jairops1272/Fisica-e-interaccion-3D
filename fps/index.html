@@ -17,13 +17,13 @@
 	<div id="container"></div>
 
 	<script type="importmap">
-			{
-			  "imports": {
-				""three": "../build/three.module.js",
-				"three/addons/": "./jsm/"
-			  }
-			}
-			</script>
+		{
+		  "imports": {
+			"three": "./build/three.module.js",
+			"three/addons/": "./jsm/"
+		  }
+		}
+	</script>
 
 
 	<script type="module">
@@ -412,44 +412,41 @@
 		}
 
 		const loader = new GLTFLoader().setPath('./gltf/');
+		loader.load('collision-world.glb', (gltf) => {
+			scene.add(gltf.scene);
 
-		loader.load('./gltf/collision-world.glb', (gltf) => {
-s
+			worldOctree.fromGraphNode(gltf.scene);
 
-				scene.add(gltf.scene);
+			gltf.scene.traverse(child => {
 
-				worldOctree.fromGraphNode(gltf.scene);
+				if (child.isMesh) {
 
-				gltf.scene.traverse(child => {
+					child.castShadow = true;
+					child.receiveShadow = true;
 
-					if (child.isMesh) {
+					if (child.material.map) {
 
-						child.castShadow = true;
-						child.receiveShadow = true;
-
-						if (child.material.map) {
-
-							child.material.map.anisotropy = 4;
-
-						}
+						child.material.map.anisotropy = 4;
 
 					}
 
-				});
-
-				const helper = new OctreeHelper(worldOctree);
-				helper.visible = false;
-				scene.add(helper);
-
-				const gui = new GUI({ width: 200 });
-				gui.add({ debug: false }, 'debug')
-					.onChange(function (value) {
-
-						helper.visible = value;
-
-					});
+				}
 
 			});
+
+			const helper = new OctreeHelper(worldOctree);
+			helper.visible = false;
+			scene.add(helper);
+
+			const gui = new GUI({ width: 200 });
+			gui.add({ debug: false }, 'debug')
+				.onChange(function (value) {
+
+					helper.visible = value;
+
+				});
+
+		});
 
 		function teleportPlayerIfOob() {
 
